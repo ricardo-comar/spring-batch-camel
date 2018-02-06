@@ -84,6 +84,25 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>	
 			
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<version>1.12</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlUrls><param>http://www.dneonline.com/calculator.asmx?WSDL</param></wsdlUrls>
+							<packageName>calculator.webservice</packageName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
 		</plugins>
 	</build>
 	

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import br.comar.ricardo.stuff.camel.pojo.CamelBean;
 import br.comar.ricardo.stuff.camel.pojo.CamelOperation;
 import br.comar.ricardo.stuff.camel.processor.CamelProcessor;
+import br.comar.ricardo.stuff.camel.processor.WebServiceProcessor;
 
 @Path("/camel")
 @Produces( MediaType.APPLICATION_JSON)
@@ -32,7 +33,7 @@ public class CamelResource {
 	@GET
 	@Path("/calc/{intA}/{op}/{intB}")
 	@ManagedAsync
-	public void asyncNIO(@Suspended final AsyncResponse asyncResponse,
+	public void camelProcessor(@Suspended final AsyncResponse asyncResponse,
 			@PathParam("intA") Integer intA,
 			@PathParam("op") String op,
 			@PathParam("intB") Integer intB) {
@@ -46,4 +47,21 @@ public class CamelResource {
 		asyncResponse.resume(responseBody);
 	}
 
+
+	@GET
+	@Path("/wscalc/{intA}/{op}/{intB}")
+	@ManagedAsync
+	public void wsProcessor(@Suspended final AsyncResponse asyncResponse,
+			@PathParam("intA") Integer intA,
+			@PathParam("op") String op,
+			@PathParam("intB") Integer intB) {
+		
+		final CamelBean requestBody = new CamelBean(intA, intB, CamelOperation.valueOf(op.toUpperCase()), null);
+		final Exchange requestExchange = ExchangeBuilder.anExchange(camelContext).withBody(requestBody).build();
+
+		final Exchange responseExchange = producer.send(WebServiceProcessor.SERVICE_ENDPOINT, requestExchange);
+		final CamelBean responseBody = responseExchange.getOut().getBody(CamelBean.class);
+		
+		asyncResponse.resume(responseBody);
+	}
 }
